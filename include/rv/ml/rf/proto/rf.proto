@@ -1,0 +1,90 @@
+package rv.rf;
+
+message ForestParameter {
+  enum NodeType {
+    SPLIT_NODE = 0;
+    LEAF_NODE = 1;
+  }
+  
+  optional SplitFunctionParameter split_function_param = 1;
+  repeated SplitEvaluatorParameter split_evaluator_param = 2;
+  repeated LeafNodeFcnParameter leaf_node_fcn_param = 3;
+  
+  optional uint32 n_trees = 5 [default = 4];
+  optional uint32 max_tree_depth = 6 [default = 5];
+  //n of samples used to optimize split
+  optional uint32 n_test_samples = 7 [default = 1000]; 
+  //n of split functions sampled to optimize split
+  optional uint32 n_test_split_functions = 8 [default = 100];
+  //n of thresholds sampled to optimize split
+  optional uint32 n_test_thresholds = 9 [default = 10];
+  optional uint32 min_samples_to_split = 10 [default = 5];
+  optional uint32 min_samples_for_leaf = 11 [default = 1];
+}
+
+
+message SplitFunctionParameter {
+  enum SplitFunctionType {
+    PIXEL_VALUE = 0;
+    PIXEL_DIFFERENCE = 1;
+    PIXEL_DIFFERENCE_DEPENDENT = 2;
+    BASIS_FCN = 3;
+  }
+  
+  enum GeneratorSpace {
+    LINEAR = 0;
+    LOG_10 = 1;
+    DATA_LINEAR = 2; // get the generator values from the data
+  }
+  
+  optional SplitFunctionType type = 1 [default = PIXEL_VALUE];
+  
+  optional uint32 gen_n_slices = 2 [default = 1];
+  optional bool gen_fix_one = 3 [default = false];
+  optional GeneratorSpace gen_space = 4 [default = DATA_LINEAR];
+  // [from, to] (both values included)
+  optional float gen_x_from = 5;
+  optional float gen_x_to = 6;
+  optional uint32 gen_x_n = 7;
+  optional float gen_y_from = 8;
+  optional float gen_y_to = 9;
+  optional uint32 gen_y_n = 10;
+
+  //for basis fcn split function 
+  optional string basis_csv = 11 [default = ""];
+}
+
+message SplitEvaluatorParameter {
+  enum SplitEvaluatorType {
+    CLASSIFICATION_INFORMATION_GAIN = 0;
+    CLASSIFICATION_GINI = 1;
+    REGRESSION_TRACE_COV = 2;
+    REGRESSION_VARIANCE_REDUCTION = 3;
+    REGRESSION_WEIGHTED_TRACE_COV = 4;
+  }
+  
+  optional SplitEvaluatorType type = 1 [default = CLASSIFICATION_INFORMATION_GAIN];
+  optional bool normalize = 2 [default = true]; //normalize left/right with |S|
+  optional float weight = 3 [default = 1.0]; //weight if combining several split evaluators
+
+  //param for REGRESSION_WEIGHTED_TRACE_COV
+  optional bool weighted_mean = 4 [default = false];
+}
+
+message LeafNodeFcnParameter {
+  enum LeafNodeFcnType {
+    CLASSIFICATION = 0;
+    REGRESSION_MEAN = 1;
+    REGRESSION_MEAN_STD = 2;
+    REGRESSION_MEDIAN = 3;
+    REGRESSION_REGRESSION = 4;
+  }
+  
+  optional LeafNodeFcnType type = 1 [default = CLASSIFICATION];
+  
+  //regularization parameter for regression_regression
+  optional float lambda = 2 [default = 0]; 
+  optional bool use_bias = 3 [default = true];
+  optional uint32 poly_degree = 4 [default = 1];
+  optional bool weighted_regression = 5 [default = false];
+}

@@ -1,0 +1,9 @@
+*.kdev*
+build
+.ycm_extra_conf.pyc
+test/test_mex_rf_forest*txt
+test/test_mex_rf_*.proto
+test/test_mex_rf_*.forest
+test/*.csv
+matlab/rf/*mexa64
+**/*pyc
